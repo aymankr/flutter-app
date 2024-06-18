@@ -1,22 +1,7 @@
-version: '3.7'
+version: '3.8'
 
 services:
-  db:
-    image: postgres:13
-    restart: always
-    environment:
-      POSTGRES_USER: flutteruser
-      POSTGRES_PASSWORD: flutterpass
-      POSTGRES_DB: flutterdb
-    volumes:
-      - db_data:/var/lib/postgresql/data
-
-  app:
+  flutter-app:
     build: .
     ports:
-      - "8080:8080"
-    depends_on:
-      - db
-
-volumes:
-  db_data:
+      - "80:80"

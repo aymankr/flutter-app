@@ -1,20 +1,29 @@
-# Use an official Dart runtime as a parent image
-FROM dart:stable
+# Utilisez l'image officielle de Dart pour construire l'application
+FROM google/dart:latest AS build
 
-# Set the working directory
+# Définissez le répertoire de travail
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
+# Copiez les fichiers du projet dans le conteneur
 COPY . .
 
-# Get dependencies
+# Installez les dépendances Flutter
 RUN dart pub get
 
-# Build the application
-RUN dart compile exe bin/server.dart -o /app/bin/server
+# Activez le support web pour Flutter
+RUN flutter config --enable-web
 
-# Make port 8080 available to the world outside this container
-EXPOSE 8080
+# Construisez l'application Flutter pour le web
+RUN flutter build web
 
-# Run the executable
-CMD ["./bin/server"]
+# Utilisez une image nginx pour servir l'application web
+FROM nginx:alpine
+
+# Copiez les fichiers de build de Flutter dans le répertoire nginx
+COPY --from=build /app/build/web /usr/share/nginx/html
+
+# Exposez le port 80
+EXPOSE 80
+
+# Démarrez nginx
+CMD ["nginx", "-g", "daemon off;"]
